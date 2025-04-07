@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gerador de RPG</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icon-192.png">
+  <style>
+    body {
+      font-family: 'Georgia', serif;
+      background: #2e1b09 url('icon-512.png') no-repeat center center fixed;
+      background-size: cover;
+      color: #f0e6d2;
+      text-align: center;
+      padding: 2rem;
+    }
+    .container {
+      background-color: rgba(0, 0, 0, 0.6);
+      padding: 20px;
+      border-radius: 15px;
+      max-width: 800px;
+      margin: 50px auto;
+      box-shadow: 0 0 15px rgba(0,0,0,0.5);
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .grupo {
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      margin: 5px;
+      cursor: pointer;
+      border: none;
+      border-radius: 8px;
+      background-color: #c19a6b;
+      color: #000;
+      font-weight: bold;
+    }
+
+    #resultado {
+      margin-top: 30px;
+      background-color: rgba(255, 255, 255, 0.2);
+      padding: 15px;
+      border-radius: 10px;
+    }
+
+    .titulo {
+      font-size: 20px;
+      font-weight: bold;
+      margin-bottom: 10px;
+      color: #ffe4b5;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+    <h1>🎲 Gerador de RPG</h1>
+
+    <div class="grupo">
+      <h3>🌦️ Clima</h3>
+      <button onclick="clima()">Rolar Clima</button>
+    </div>
+
+    <div class="grupo">
+      <h3>⚔️ Acerto Crítico</h3>
+      <button onclick="acertoCritico('contundente')">Contundente</button>
+      <button onclick="acertoCritico('cortante')">Cortante</button>
+      <button onclick="acertoCritico('perfurante')">Perfurante</button>
+    </div>
+
+    <div class="grupo">
+      <h3>💀 Falha Crítica</h3>
+      <button onclick="falhaCritica('contundente')">Contundente</button>
+      <button onclick="falhaCritica('cortante')">Cortante</button>
+      <button onclick="falhaCritica('perfurante')">Perfurante</button>
+    </div>
+
+    <div class="grupo">
+      <h3>🧭 Evento de Viagem</h3>
+      <button onclick="eventoViagem()">Rolar Evento</button>
+    </div>
+
+    <div id="resultado"></div>
+  </div>
+
+  <script>
+ const climas = [
+      "Chuva forte com ventos — visibilidade reduzida.",
+      "Sol escaldante — cansaço mais rápido.",
+      "Nevoeiro denso — chance de se perder.",
+      "Nublado e frio — ideal para viajar.",
+      "Temporal chegando — role CON para resistir.",
+      "Dia limpo e ensolarado — moral +1.",
+      "Vento forte — difícil acender fogo.",
+      "Granizo repentino — -1 AGI temporário.",
+      "Noite extremamente gelada — -1 PV ao acordar.",
+      "Ar abafado e úmido — teste de CON contra exaustão."
+    ];
+
+    const acertos = {
+      contundente: [
+        "O inimigo fica atordoado e perde sua próxima ação.",
+        "O golpe quebra um osso — -1 em testes de FOR.",
+        "A arma empurra o inimigo 2 metros para trás.",
+        "Desarma o inimigo com o impacto.",
+        "Acerto na cabeça — o inimigo desmaia por 1 turno.",
+        "Fratura exposta — CON -1 até tratamento.",
+        "Derruba o inimigo no chão.",
+        "O som do impacto intimida inimigos próximos.",
+        "A armadura do alvo trinca — -1 de proteção.",
+        "Dano dobrado e o inimigo cambaleia."
+      ],
+      cortante: [
+        "Corta profundamente — dano dobrado.",
+        "Arranca um membro ou dedo — penalidade permanente.",
+        "Sangramento severo — perde 1 PV por turno.",
+        "Assusta o inimigo com um golpe brutal — -1 AGI.",
+        "Divide parte da armadura — proteção reduzida.",
+        "Fere o rosto — penalidade social futura.",
+        "Golpe precisa de pontos para costura — cicatriz garantida.",
+        "Ataque preciso — ignora armadura.",
+        "O alvo grita de dor — atrai atenção.",
+        "O membro atingido fica inutilizado por 1d6 turnos."
+      ],
+      perfurante: [
+        "Perfura um órgão vital — PV reduzido à metade.",
+        "Crava a arma no alvo — precisa ser removida.",
+        "Paralisa o membro atingido — não pode usar braço/perna.",
+        "Ataque entra por uma fresta da armadura.",
+        "Inimigo entra em choque e perde turno.",
+        "Ponto vital atingido — +2 de dano.",
+        "A ferida é silenciosa, mas mortal — sangramento oculto.",
+        "Perfura o olho — cegueira permanente.",
+        "Arma fica presa no corpo do inimigo.",
+        "Inimigo cambaleia e cai sentado — teste de CON."
+      ]
+    };
+
+    const falhas = {
+      contundente: [
+        "Erra e atinge um aliado próximo.",
+        "A arma escapa da mão e voa longe.",
+        "Desequilíbrio — perde a próxima ação.",
+        "Atinge o chão e trinca a arma.",
+        "Tropeça ao atacar — cai no chão.",
+        "Grita ao errar — chama atenção.",
+        "A arma emperra por um instante.",
+        "Desarma a si mesmo com o impacto.",
+        "Puxa um músculo — FOR -1 por 1 hora.",
+        "A arma vibra e machuca o braço — -1 AGI."
+      ],
+      cortante: [
+        "A lâmina quebra ao bater em algo duro.",
+        "Corta a si mesmo de leve — perde 1 PV.",
+        "A lâmina fica presa em um objeto.",
+        "Erra feio e gira em falso — exposto ao contra-ataque.",
+        "Fere um aliado de raspão.",
+        "A lâmina escapa e crava no chão.",
+        "O cinto da bainha arrebenta.",
+        "Corta o cabo de sua própria mochila.",
+        "A bainha se solta e atrapalha o ataque.",
+        "A espada vibra nas mãos — -1 AGI no próximo turno."
+      ],
+      perfurante: [
+        "A lança se parte na ponta.",
+        "A flecha erra e acerta um aliado.",
+        "A arma entorta ao bater no escudo.",
+        "A corda do arco arrebenta.",
+        "A lança escorrega e fura o chão.",
+        "O projétil ricocheteia e acerta você.",
+        "Faz barulho demais ao atirar — atrai atenção.",
+        "Perde equilíbrio e cai.",
+        "Fura a própria perna por acidente.",
+        "A flecha prende na corda e embaraça tudo."
+      ]
+    };
+
+    const eventosViagem = [
+      "Carroça emperrada na lama — atrasam meio dia de viagem.",
+      "Um dos cavalos manca — o ritmo do grupo diminui.",
+      "Chuva estraga parte dos mantimentos — precisam improvisar comida.",
+      "Discórdia entre membros da caravana — exige uma liderança firme.",
+      "Um sapato ou cela arrebenta — precisam parar para reparar.",
+      "Perdem-se brevemente na trilha — consomem tempo e energia.",
+      "Enxame de insetos invade o acampamento — noite mal dormida.",
+      "Falta de água potável — tensão e racionamento por 1 dia.",
+      "Alguém adoece com febre leve — precisam decidir se param ou arriscam.",
+      "Travessia de rio sem ponte — molham equipamentos e perdem tempo.",
+      "Roubo noturno de um item menor — desconfiança cresce.",
+      "Alimento contaminado causa enjoo — -1 CON temporariamente.",
+      "Vento forte carrega tendas ou capas durante o acampamento.",
+      "Local de descanso já ocupado por outro grupo.",
+      "Rotina cansativa: moral do grupo abaixa.",
+      "Recolha de lenha ou caça demora mais do que o esperado.",
+      "Ataque de pulgas ou piolhos em um dos membros do grupo.",
+      "Buraco no odre: perdem parte da água.",
+      "Uma mula teima em não andar.",
+      "Ruídos estranhos mantêm todos acordados — fadiga no dia seguinte."
+    ];
+
+    function clima() {
+      const resultado = climas[Math.floor(Math.random() * climas.length)];
+      mostrarResultado("🌦️ Clima", resultado);
+    }
+
+    function acertoCritico(tipo) {
+      const resultado = acertos[tipo][Math.floor(Math.random() * acertos[tipo].length)];
+      mostrarResultado(`⚔️ Acerto Crítico (${tipo})`, resultado);
+    }
+
+    function falhaCritica(tipo) {
+      const resultado = falhas[tipo][Math.floor(Math.random() * falhas[tipo].length)];
+      mostrarResultado(`💀 Falha Crítica (${tipo})`, resultado);
+    }
+
+    function eventoViagem() {
+      const resultado = eventosViagem[Math.floor(Math.random() * eventosViagem.length)];
+      mostrarResultado("🧭 Evento de Viagem", resultado);
+    }
+
+    function mostrarResultado(titulo, texto) {
+      document.getElementById("resultado").innerHTML = `
+        <div class="titulo">${titulo}</div>
+        <p>${texto}</p>
+      `;
+    }    
+if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js');
+    }
+  </script>
+</body>
+</html>
